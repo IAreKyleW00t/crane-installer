@@ -85,9 +85,9 @@ jobs:
       - uses: iarekylew00t/crane-installer@v1
       - name: Login to Docker Hub
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }} | \
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | \
           crane auth login docker.io \
-            --username ${{ vars.DOCKERHUB_USERNAME }} \
+            --username "${{ vars.DOCKERHUB_USERNAME }}" \
             --password-stdin
 ```
 
