@@ -1,7 +1,8 @@
 # crane-installer GitHub Action
 
 [![Docker Hub](https://img.shields.io/badge/marketplace-iarekylew00t%2Fcrane--installer-blue?style=flat)](https://hub.docker.com/r/iarekylew00t/crane-installer)
-![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/IAreKyleW00t/crane-installer?label=version)
+[![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/IAreKyleW00t/crane-installer?label=version)](https://github.com/IAreKyleW00t/crane-installer/tags)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/IAreKyleW00t/crane-installer/main.yml)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/main.yml)
 [![License](https://img.shields.io/github/license/IAreKyleW00t/crane-installer)](https://github.com/IAreKyleW00t/crane-installer/blob/main/LICENSE)
 
 This GitHub Action enables you to interacting with remote images and registries using [`crane`](https://github.com/google/go-containerregistry/tree/main/cmd/crane). This action will verify the integrity of the `crane` release during installation using [SLSA 3 provenance](https://slsa.dev/) (see notes in [Usage](#usage)).
