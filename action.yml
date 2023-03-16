@@ -1,0 +1,72 @@
+name: crane-installer
+author: Kyle Colantonio
+description: GitHub Action for installing the crane CLI tool
+branding:
+  icon: box
+  color: blue
+
+inputs:
+  crane-release:
+    description: crane release version to be installed
+    required: false
+    default: latest
+  install-dir:
+    description: directory to install crane binary
+    required: false
+    default: $HOME/.crane
+
+runs:
+  using: "composite"
+  steps:
+    - uses: slsa-framework/slsa-verifier/actions/installer@v2.0.1
+    - shell: bash
+      run: |
+        #!/bin/bash
+        set -e
+
+        # Create install directory
+        mkdir -p ${{ inputs.install-dir }}
+
+        # Pull latest version if not pinned
+        VERSION=${{ inputs.crane-release }}
+        if [[ "$VERSION" == "latest" ]]; then
+          VERSION=$(curl -s "https://api.github.com/repos/google/go-containerregistry/releases/latest" | jq -r '.tag_name')
+        fi
+
+        # Parse OS and Arch
+        OS=${{ runner.os }}
+        OS=${OS//macOS/Darwin}
+        case ${{ runner.arch }} in
+          X64)
+            ARCH=x86_64
+            ;;
+          ARM)
+            ARCH=armv6
+            ;;
+          ARM64)
+            ARCH=arm64
+            ;;
+          *)
+            echo "unsupported architecture $arch"
+            exit 1
+            ;;
+        esac
+
+        # Download crane
+        curl -sL "https://github.com/google/go-containerregistry/releases/download/${VERSION}/go-containerregistry_${OS}_${ARCH}.tar.gz" > go-containerregistry.tar.gz
+
+        # Validate download
+        curl -sL "https://github.com/google/go-containerregistry/releases/download/${VERSION}/multiple.intoto.jsonl" > provenance.intoto.jsonl
+        slsa-verifier verify-artifact go-containerregistry.tar.gz \
+            --provenance-path provenance.intoto.jsonl \
+            --source-uri github.com/google/go-containerregistry \
+            --source-tag "${VERSION}"
+
+        # Install crane
+        tar -zxvf go-containerregistry.tar.gz -C "${{ inputs.install-dir }}" crane
+    - if: ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
+      run: echo "${{ inputs.install-dir }}" >> $GITHUB_PATH
+      shell: bash
+    - if: ${{ runner.os == 'Windows' }}
+      run: echo "${{ inputs.install-dir }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      shell: pwsh
