@@ -71,7 +71,11 @@ runs:
         fi
 
         # Install crane
-        tar -zxvf go-containerregistry.tar.gz -C "${{ inputs.install-dir }}" crane
+        CRANE_BIN=crane
+        if [[ "$OS" == "Windows" ]]; then
+          CRANE_BIN=crane.exe
+        fi
+        tar -zxvf go-containerregistry.tar.gz -C "${{ inputs.install-dir }}" "$CRANE_BIN"
 
     - if: ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
       run: echo "${{ inputs.install-dir }}" >> $GITHUB_PATH
