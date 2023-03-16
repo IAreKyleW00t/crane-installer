@@ -14,15 +14,21 @@ inputs:
     description: directory to install crane binary
     required: false
     default: $HOME/.crane
+  token:
+    description: token to use for GitHub authentication
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: "composite"
   steps:
-    - uses: slsa-framework/slsa-verifier/actions/installer@v2.0.1
+    - if: ${{ runner.os == 'Linux' }}
+      uses: slsa-framework/slsa-verifier/actions/installer@v2.0.1
+
     - shell: bash
       run: |
         #!/bin/bash
-        set -e
+        set -ex
 
         # Create install directory
         mkdir -p ${{ inputs.install-dir }}
@@ -30,7 +36,7 @@ runs:
         # Pull latest version if not pinned
         VERSION=${{ inputs.crane-release }}
         if [[ "$VERSION" == "latest" ]]; then
-          VERSION=$(curl -s "https://api.github.com/repos/google/go-containerregistry/releases/latest" | jq -r '.tag_name')
+          VERSION=$(curl -u "crane:${{ inputs.token }}" -s "https://api.github.com/repos/google/go-containerregistry/releases/latest" | jq -r '.tag_name')
         fi
 
         # Parse OS and Arch
@@ -55,18 +61,25 @@ runs:
         # Download crane
         curl -sL "https://github.com/google/go-containerregistry/releases/download/${VERSION}/go-containerregistry_${OS}_${ARCH}.tar.gz" > go-containerregistry.tar.gz
 
-        # Validate download
-        curl -sL "https://github.com/google/go-containerregistry/releases/download/${VERSION}/multiple.intoto.jsonl" > provenance.intoto.jsonl
-        slsa-verifier verify-artifact go-containerregistry.tar.gz \
-            --provenance-path provenance.intoto.jsonl \
-            --source-uri github.com/google/go-containerregistry \
-            --source-tag "${VERSION}"
+        # Validate download (Linux only)
+        if [[ "$OS" == "Linux" ]]; then
+          curl -sL "https://github.com/google/go-containerregistry/releases/download/${VERSION}/multiple.intoto.jsonl" > provenance.intoto.jsonl
+          slsa-verifier verify-artifact go-containerregistry.tar.gz \
+              --provenance-path provenance.intoto.jsonl \
+              --source-uri github.com/google/go-containerregistry \
+              --source-tag "${VERSION}"
+        fi
 
         # Install crane
         tar -zxvf go-containerregistry.tar.gz -C "${{ inputs.install-dir }}" crane
+
+        # Login to GHCR
+        echo "${{ inputs.token }}" | crane auth login ghcr.io --username "crane" --password-stdin
+
     - if: ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
       run: echo "${{ inputs.install-dir }}" >> $GITHUB_PATH
       shell: bash
+
     - if: ${{ runner.os == 'Windows' }}
       run: echo "${{ inputs.install-dir }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       shell: pwsh
