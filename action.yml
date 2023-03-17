@@ -14,6 +14,10 @@ inputs:
     description: directory to install crane binary
     required: false
     default: $HOME/.crane
+  username:
+    description: username to use for GitHub authentication
+    required: false
+    default: ${{ github.actor }}
   token:
     description: token to use for GitHub authentication
     required: false
@@ -36,7 +40,7 @@ runs:
         # Pull latest version if not pinned
         VERSION=${{ inputs.crane-release }}
         if [[ "$VERSION" == "latest" ]]; then
-          VERSION=$(curl -u "crane:${{ inputs.token }}" -s "https://api.github.com/repos/google/go-containerregistry/releases/latest" | jq -r '.tag_name')
+          VERSION=$(curl -u "${{ inputs.username }}:${{ inputs.token }}" -s "https://api.github.com/repos/google/go-containerregistry/releases/latest" | jq -r '.tag_name')
         fi
 
         # Parse OS and Arch
@@ -87,4 +91,4 @@ runs:
 
     - shell: bash
       run: |
-        echo "${{ inputs.token }}" | crane auth login ghcr.io --username "crane" --password-stdin
+        echo "${{ inputs.token }}" | crane auth login ghcr.io --username "${{ inputs.username }}" --password-stdin
