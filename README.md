@@ -40,11 +40,12 @@ with:
 
 ## Inputs
 
-| input           | Description                             | Default               |
-| --------------- | --------------------------------------- | --------------------- |
-| `crane-release` | `crane` release version to be installed | `latest`              |
-| `install-dir`   | directory to install `crane` binary     | `$HOME/.crane`        |
-| `token`         | token to use for GitHub authentication  | `${{ github.token }}` |
+| input           | Description                               | Default               |
+| --------------- | ----------------------------------------- | --------------------- |
+| `crane-release` | `crane` release version to be installed   | `latest`              |
+| `install-dir`   | directory to install `crane` binary       | `$HOME/.crane`        |
+| `username`      | username to use for GitHub authentication | `${{ github.actor }}` |
+| `token`         | token to use for GitHub authentication    | `${{ github.token }}` |
 
 ## Examples
 
