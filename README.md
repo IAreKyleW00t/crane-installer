@@ -5,7 +5,7 @@
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/IAreKyleW00t/crane-installer/main.yml)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/main.yml)
 [![License](https://img.shields.io/github/license/IAreKyleW00t/crane-installer)](https://github.com/IAreKyleW00t/crane-installer/blob/main/LICENSE)
 
-This GitHub Action enables you to interacting with remote images and registries using [`crane`](https://github.com/google/go-containerregistry/tree/main/cmd/crane). This action will verify the integrity of the `crane` release during installation using [SLSA 3 provenance](https://slsa.dev/) (see notes in [Usage](#usage)).
+This GitHub Action enables you to interacting with remote images and registries using [`crane`](https://github.com/google/go-containerregistry/tree/main/cmd/crane). This action will verify the integrity of the `crane` release during installation if you setup [SLSA 3 provenance](https://slsa.dev/) (see notes and examples below).
 
 For a quick start guide on the usage of `crane`, please refer to https://github.com/google/go-containerregistry/blob/main/cmd/crane/recipes.md. For available crane releases, see https://github.com/google/go-containerregistry/releases.
 
@@ -18,6 +18,7 @@ For a quick start guide on the usage of `crane`, please refer to https://github.
   - [Pinned version](#pinned-version)
   - [Default version](#pinned-version)
   - [Authenicate on other registries](#authenticate-on-other-registries)
+  - [Automatic validation with SLSA](#automatic-validation-with-slsa)
 
 ## Tags
 
@@ -91,6 +92,21 @@ jobs:
           crane auth login docker.io \
             --username "${{ vars.DOCKERHUB_USERNAME }}" \
             --password-stdin
+```
+
+### Automatic validation with SLSA
+
+```yaml
+jobs:
+  crane:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SLSA verifier
+        uses: slsa-framework/slsa-verifier/actions/installer@v2.0.1
+      - name: Install crane
+        uses: iarekylew00t/crane-installer@v1
+      - name: Check install
+        run: crane version
 ```
 
 ## Contributing

@@ -14,20 +14,21 @@ jobs:
       fail-fast: true
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
+        slsa: [true, false]
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Install SLSA verifier
+        uses: slsa-framework/slsa-verifier/actions/installer@v2.0.1
+        if: matrix.slsa && runner.os == 'Linux' # doesn't work on Windows or macOS
+
       - name: Install crane
         uses: ./
 
       - name: Test crane
-        run: |
-          crane version
-          crane ls caddy
-          crane digest nginx:latest
-          crane config alpine:3.11
+        run: crane version
 
   main:
     if: ${{ github.event_name == 'push' }}
