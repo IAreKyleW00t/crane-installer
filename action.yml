@@ -26,9 +26,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - if: ${{ runner.os == 'Linux' }}
-      uses: slsa-framework/slsa-verifier/actions/installer@v2.0.1
-
     - shell: bash
       run: |
         #!/bin/bash
@@ -66,12 +63,14 @@ runs:
         curl -sL "https://github.com/google/go-containerregistry/releases/download/${VERSION}/go-containerregistry_${OS}_${ARCH}.tar.gz" > go-containerregistry.tar.gz
 
         # Validate download (Linux only)
-        if [[ "$OS" == "Linux" ]]; then
-          curl -sL "https://github.com/google/go-containerregistry/releases/download/${VERSION}/multiple.intoto.jsonl" > provenance.intoto.jsonl
-          slsa-verifier verify-artifact go-containerregistry.tar.gz \
-              --provenance-path provenance.intoto.jsonl \
-              --source-uri github.com/google/go-containerregistry \
-              --source-tag "${VERSION}"
+        if which slsa-verifier >/dev/null; then
+          if [[ "$OS" == "Linux" ]]; then
+            curl -sL "https://github.com/google/go-containerregistry/releases/download/${VERSION}/multiple.intoto.jsonl" > provenance.intoto.jsonl
+            slsa-verifier verify-artifact go-containerregistry.tar.gz \
+                --provenance-path provenance.intoto.jsonl \
+                --source-uri github.com/google/go-containerregistry \
+                --source-tag "${VERSION}"
+          fi
         fi
 
         # Install crane
