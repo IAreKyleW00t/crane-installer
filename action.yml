@@ -29,7 +29,7 @@ runs:
     - shell: bash
       run: |
         #!/bin/bash
-        set -ex
+        set -e
 
         # Create install directory
         mkdir -p ${{ inputs.install-dir }}
