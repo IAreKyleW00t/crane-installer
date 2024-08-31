@@ -1,14 +1,20 @@
-name: Main
+name: Action Test & Release
 
 on:
   push:
     branches: [main]
+    paths:
+      - .github/workflows/main.yml
+      - action.yml
   pull_request:
     branches: [main]
+    paths:
+      - .github/workflows/main.yml
+      - action.yml
 
 jobs:
   test:
-    name: Test crane-installer Action
+    name: Test action
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -18,10 +24,10 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Install SLSA verifier
-        uses: slsa-framework/slsa-verifier/actions/installer@v2.6.0
+        uses: slsa-framework/slsa-verifier/actions/installer@3714a2a4684014deb874a0e737dffa0ee02dd647 # v2.6.0
         if: matrix.slsa && runner.os == 'Linux' # doesn't work on Windows or macOS
 
       - name: Install crane
@@ -39,11 +45,11 @@ jobs:
     needs: [test]
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Bump version tag
         id: tag
-        uses: mathieudutour/github-tag-action@v6.2
+        uses: mathieudutour/github-tag-action@a22cf08638b34d5badda920f9daf6e72c477b07b # v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -55,3 +61,10 @@ jobs:
           git tag -f v$MAJOR.$MINOR
           git push -f -u origin v$MAJOR
           git push -f -u origin v$MAJOR.$MINOR
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2.0.8
+        with:
+          tag_name: v${{ steps.tag.outputs.new_version }}
+          make_latest: true
+          generate_release_notes: true

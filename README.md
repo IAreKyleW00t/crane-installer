@@ -4,10 +4,16 @@
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/IAreKyleW00t/crane-installer?label=version)](https://github.com/IAreKyleW00t/crane-installer/tags)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/IAreKyleW00t/crane-installer/main.yml)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/main.yml)
 [![License](https://img.shields.io/github/license/IAreKyleW00t/crane-installer)](https://github.com/IAreKyleW00t/crane-installer/blob/main/LICENSE)
+![Dependabot](https://img.shields.io/badge/dependabot-025E8C?style=flat&logo=dependabot&logoColor=white)
 
-This GitHub Action enables you to interacting with remote images and registries using [`crane`](https://github.com/google/go-containerregistry/tree/main/cmd/crane). This action will verify the integrity of the `crane` release during installation if you setup [SLSA 3 provenance](https://slsa.dev/) (see notes and examples below).
+This GitHub Action enables you to interacting with remote images and registries
+using [`crane`](https://github.com/google/go-containerregistry/tree/main/cmd/crane).
+This action will verify the integrity of the `crane` release during installation
+if you setup [SLSA 3 provenance](https://slsa.dev/) (see notes and examples below).
 
-For a quick start guide on the usage of `crane`, please refer to https://github.com/google/go-containerregistry/blob/main/cmd/crane/recipes.md. For available crane releases, see https://github.com/google/go-containerregistry/releases.
+For a quick start guide on the usage of `crane`, please refer to
+https://github.com/google/go-containerregistry/blob/main/cmd/crane/recipes.md.
+For available crane releases, see https://github.com/google/go-containerregistry/releases.
 
 ---
 
@@ -29,7 +35,10 @@ The following tags are available for the `iarekylew00t/crane-installer` action.
 
 ## Usage
 
-This action currently supports GitHub-provided Linux, macOS and Windows runners (self-hosted runners may not work). MacOS and Windows runners do not work with the [slsa-verifier](https://github.com/slsa-framework/slsa-verifier/tree/main/actions/installer) action, so integrity validation is skipped for those.
+This action currently supports GitHub-provided Linux, macOS and Windows runners
+(self-hosted runners may not work). MacOS and Windows runners do not work with the
+[slsa-verifier](https://github.com/slsa-framework/slsa-verifier/tree/main/actions/installer)
+action, so integrity validation is skipped for those.
 
 Add the following entry to your Github workflow YAML file:
 
@@ -111,7 +120,9 @@ jobs:
 
 ## Contributing
 
-Feel free to contribute and make things better by opening an [Issue](https://github.com/IAreKyleW00t/crane-installer/issues) or [Pull Request](https://github.com/IAreKyleW00t/crane-installer/pulls).
+Feel free to contribute and make things better by opening an
+[Issue](https://github.com/IAreKyleW00t/crane-installer/issues) or
+[Pull Request](https://github.com/IAreKyleW00t/crane-installer/pulls).
 
 ## License
 
