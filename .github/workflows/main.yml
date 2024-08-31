@@ -27,7 +27,7 @@ jobs:
       - name: Install crane
         uses: ./
         with:
-          crane-release: v0.19.2
+          crane-release: v0.19.1
 
       - name: Test crane
         run: crane version
