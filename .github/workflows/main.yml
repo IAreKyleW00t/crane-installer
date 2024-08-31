@@ -39,10 +39,10 @@ jobs:
         run: crane version
 
   main:
-    if: ${{ github.event_name == 'push' }}
     name: Publish new version
-    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     needs: [test]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
