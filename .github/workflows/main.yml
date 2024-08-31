@@ -21,11 +21,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install SLSA verifier
-        uses: slsa-framework/slsa-verifier/actions/installer@v2.5.1
+        uses: slsa-framework/slsa-verifier/actions/installer@v2.6.0
         if: matrix.slsa && runner.os == 'Linux' # doesn't work on Windows or macOS
 
       - name: Install crane
         uses: ./
+        with:
+          crane-release: v0.19.1
 
       - name: Test crane
         run: crane version
