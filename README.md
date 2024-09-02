@@ -1,10 +1,10 @@
-# crane-installer GitHub Action
+# 📦 crane-installer
 
-[![GitHub Marketplace](https://img.shields.io/badge/marketplace-iarekylew00t%2Fcrane--installer-blue?style=flat)](https://github.com/marketplace/actions/crane-installer)
-[![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/IAreKyleW00t/crane-installer?label=version)](https://github.com/IAreKyleW00t/crane-installer/tags)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/IAreKyleW00t/crane-installer/main.yml)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/main.yml)
-[![License](https://img.shields.io/github/license/IAreKyleW00t/crane-installer)](https://github.com/IAreKyleW00t/crane-installer/blob/main/LICENSE)
-![Dependabot](https://img.shields.io/badge/dependabot-025E8C?style=flat&logo=dependabot&logoColor=white)
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-crane--installer-blue?style=flat&logo=github)](https://github.com/marketplace/actions/crane-installer)
+[![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/IAreKyleW00t/crane-installer?style=flat&label=Latest%20Version&color=blue)](https://github.com/IAreKyleW00t/crane-installer/tags)
+[![Action Test & Release](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/main.yml/badge.svg)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/main.yml)
+[![License](https://img.shields.io/github/license/IAreKyleW00t/crane-installer?label=License)](https://github.com/IAreKyleW00t/crane-installer/blob/main/LICENSE)
+[![Dependabot](https://img.shields.io/badge/Dependabot-0366d6?style=flat&logo=dependabot&logoColor=white)](.github/dependabot.yml)
 
 This GitHub Action enables you to interacting with remote images and registries
 using [`crane`](https://github.com/google/go-containerregistry/tree/main/cmd/crane).
@@ -22,9 +22,11 @@ For available crane releases, see https://github.com/google/go-containerregistry
 - [Inputs](#inputs)
 - [Examples](#examples)
   - [Pinned version](#pinned-version)
-  - [Default version](#pinned-version)
-  - [Authenicate on other registries](#authenticate-on-other-registries)
+  - [Default version](#default-version)
+  - [Authenticate on other registries](#authenticate-on-other-registries)
   - [Automatic validation with SLSA](#automatic-validation-with-slsa)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Tags
 
