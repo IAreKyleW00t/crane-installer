@@ -77,6 +77,13 @@ runs:
         fi
         echo "version=$VERSION" | tee -a "$GITHUB_OUTPUT"
 
+    - id: cache
+      if: inputs.cache == 'true'
+      uses: actions/cache@v4
+      with:
+        path: ${{ inputs.install-dir }}
+        key: crane-${{ runner.os }}-${{ runner.arch }}-${{ steps.release.outputs.version }}
+
     - id: mkdir
       shell: bash
       if: steps.cache.outputs.cache-hit == false
@@ -85,13 +92,6 @@ runs:
       run: |
         # Create install directory
         mkdir -p "$INSTALL_DIR"
-
-    - id: cache
-      if: inputs.cache == 'true'
-      uses: actions/cache@v4
-      with:
-        path: ${{ inputs.install-dir }}
-        key: crane-${{ runner.os }}-${{ runner.arch }}-${{ steps.release.outputs.version }}
 
     - id: install
       shell: bash
@@ -109,7 +109,7 @@ runs:
           -u ":$TOKEN" \
           -o go-containerregistry.tar.gz \
           "https://github.com/google/go-containerregistry/releases/download/$VERSION/go-containerregistry_${OS}_${ARCH}.tar.gz"
-        tar -zxvf go-containerregistry.tar.gz -C "${{ inputs.install-dir }}" "crane$EXE"
+        tar -zxvf go-containerregistry.tar.gz -C "$INSTALL_DIR" "crane$EXE"
 
     - id: verify
       shell: bash
