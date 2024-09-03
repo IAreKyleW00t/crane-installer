@@ -117,10 +117,7 @@ runs:
         inputs.verify == 'true' &&
         (inputs.cache == 'false' || steps.cache.outputs.cache-hit == false)
       env:
-        OS: ${{ steps.sys.outputs.os }}
-        ARCH: ${{ steps.sys.outputs.arch }}
-        INSTALL_DIR: ${{ inputs.install-dir }}
-        EXE: ${{ runner.os == 'Windows' && '.exe' || '' }}
+        VERSION: ${{ steps.release.outputs.version }}
       run: |
         # Validate crane binary (if slsa-verifier is installed)
         if which slsa-verifier >/dev/null; then
@@ -134,9 +131,16 @@ runs:
             --provenance-path multiple.intoto.jsonl \
             --source-uri github.com/google/go-containerregistry \
             --source-tag "$VERSION"
+          rm -rf multiple.intoto.jsonl
         else
           echo "Binary verification was skipped because 'slsa-verifier' was not found in PATH"
         fi
+
+    - id: clean
+      shell: bash
+      run: |
+        # Cleanup install files
+        rm -rf go-containerregistry.tar.gz
 
     - id: path
       shell: bash
