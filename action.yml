@@ -87,7 +87,3 @@ runs:
     - if: ${{ runner.os == 'Windows' }}
       run: echo "${{ inputs.install-dir }}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       shell: pwsh
-
-    - shell: bash
-      run: |
-        echo "${{ inputs.token }}" | crane auth login ghcr.io --username "${{ inputs.username }}" --password-stdin
