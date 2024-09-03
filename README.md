@@ -2,129 +2,161 @@
 
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-crane--installer-blue?style=flat&logo=github)](https://github.com/marketplace/actions/crane-installer)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/IAreKyleW00t/crane-installer?style=flat&label=Latest%20Version&color=blue)](https://github.com/IAreKyleW00t/crane-installer/tags)
-[![Action Test & Release](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/main.yml/badge.svg)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/main.yml)
+[![Action Tests](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/test.yml/badge.svg)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/test.yml)
 [![License](https://img.shields.io/github/license/IAreKyleW00t/crane-installer?label=License)](https://github.com/IAreKyleW00t/crane-installer/blob/main/LICENSE)
 [![Dependabot](https://img.shields.io/badge/Dependabot-0366d6?style=flat&logo=dependabot&logoColor=white)](.github/dependabot.yml)
 
 This GitHub Action enables you to interacting with remote images and registries
 using [`crane`](https://github.com/google/go-containerregistry/tree/main/cmd/crane).
 This action will verify the integrity of the `crane` release during installation
-if you setup [SLSA 3 provenance](https://slsa.dev/) (see notes and examples below).
+if you setup [SLSA 3 provenance](https://slsa.dev/) (see [Examples](#examples) below).
+This Action will also utilize [actions/cache](https://github.com/actions/cache)
+to cache the `crane` binary.
 
 For a quick start guide on the usage of `crane`, please refer to
 https://github.com/google/go-containerregistry/blob/main/cmd/crane/recipes.md.
 For available crane releases, see https://github.com/google/go-containerregistry/releases.
 
----
+This action supports Linux, macOS and Windows runners (results may vary with
+self-hosted runners). However, there are some [limitations](#limitations)
+with macOS and Windows.
 
-- [Tags](#tags)
-- [Usage](#usage)
-- [Inputs](#inputs)
-- [Examples](#examples)
-  - [Pinned version](#pinned-version)
-  - [Default version](#default-version)
-  - [Authenticate on other registries](#authenticate-on-other-registries)
-  - [Automatic validation with SLSA](#automatic-validation-with-slsa)
-- [Contributing](#contributing)
-- [License](#license)
+## Quick Start
 
-## Tags
-
-The following tags are available for the `iarekylew00t/crane-installer` action.
-
-- `main`
-- `<version>` (eg: `v1.0.1`, including: `v1.0`, `v1`, etc.)
+```yaml
+- name: Install crane
+  uses: iarekylew00t/crane-installer@v1
+```
 
 ## Usage
 
-This action currently supports GitHub-provided Linux, macOS and Windows runners
-(self-hosted runners may not work). MacOS and Windows runners do not work with the
-[slsa-verifier](https://github.com/slsa-framework/slsa-verifier/tree/main/actions/installer)
-action, so integrity validation is skipped for those.
-
-Add the following entry to your Github workflow YAML file:
-
-```yaml
-uses: iarekylew00t/crane-installer@v1
-with:
-  crane-release: v0.14.0 # optional
-```
+> [!IMPORTANT]
+>
+> You need to authenticate into registries using either the
+> [docker/login-action](https://github.com/docker/login-action) Action or by
+> manually configuring credentials in within `crane` itself. See the
+> [Examples](#examples) section for details on how to do this.
 
 ## Inputs
 
-| input           | Description                               | Default               |
-| --------------- | ----------------------------------------- | --------------------- |
-| `crane-release` | `crane` release version to be installed   | `latest`              |
-| `install-dir`   | directory to install `crane` binary       | `$HOME/.crane`        |
-| `username`      | username to use for GitHub authentication | `${{ github.actor }}` |
-| `token`         | token to use for GitHub authentication    | `${{ github.token }}` |
+| Name            | Type    | Description                                   | Default               |
+| --------------- | ------- | --------------------------------------------- | --------------------- |
+| `crane-release` | String  | `crane` release version to be installed       | `latest`              |
+| `install-dir`   | String  | directory to install `crane` binary           | `$HOME/.crane`        |
+| `cache`         | Boolean | Cache the `crane` binary                      | `true`                |
+| `verify`        | Boolean | Perform SLSA validation on `crane` binary [1] | `true`                |
+| `token`         | String  | token to use for GitHub authentication        | `${{ github.token }}` |
+
+> 1. `slsa-verifier` must be in your `PATH` for validation to work. It will be skipped
+>    if it's not present; See
+>    [Automatic validation with SLSA](#automatic-validation-with-slsa).
+>    The `verify` input is if you want explicitly _skip_ the verification step when it _would_ run.
 
 ## Examples
 
 ### Pinned version
 
 ```yaml
-jobs:
-  crane:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install crane
-        uses: iarekylew00t/crane-installer@v1
-        with:
-          crane-release: v0.14.0
-      - name: Check install
-        run: crane version
+- name: Install crane
+  uses: iarekylew00t/crane-installer@v1
+  with:
+    crane-release: v0.14.0
 ```
 
-### Default version
+### Authenticate using Docker credentials
 
 ```yaml
-jobs:
-  crane:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install crane
-        uses: iarekylew00t/crane-installer@v1
-      - name: Check install
-        run: crane version
+- name: Install crane
+  uses: iarekylew00t/crane-installer@v2
+
+- name: Login to DockerHub
+  uses: docker/login-action@v3
+  with:
+    username: ${{ secrets.DOCKERHUB_USERNAME }}
+    password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+- name: Login to GHCR
+  uses: docker/login-action@v3
+  with:
+    registry: ghcr.io
+    username: ${{ github.actor }}
+    password: ${{ github.token }}
 ```
 
-### Authenticate on other registries
+### Authenticate using crane
 
 ```yaml
-jobs:
-  crane:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: iarekylew00t/crane-installer@v1
-      - name: Login to Docker Hub
-        run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | \
-          crane auth login docker.io \
-            --username "${{ vars.DOCKERHUB_USERNAME }}" \
-            --password-stdin
+- name: Install crane
+  uses: iarekylew00t/crane-installer@v2
+
+- name: Login to DockerHub
+  run: |
+    echo "${{ secrets.DOCKERHUB_TOKEN }}" | \
+    crane auth login docker.io \
+      --user "${{ vars.DOCKERHUB_USERNAME }}" \
+      --pass-stdin
+
+- name: Login to GHCR
+  run: |
+    echo "${{ github.token }}" | \
+    crane auth login ghcr.io \
+      --user "${{ github.actor }}" \
+      --pass-stdin
 ```
 
 ### Automatic validation with SLSA
 
 ```yaml
-jobs:
-  crane:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install SLSA verifier
-        uses: slsa-framework/slsa-verifier/actions/installer@v2.0.1
-      - name: Install crane
-        uses: iarekylew00t/crane-installer@v1
-      - name: Check install
-        run: crane version
+- name: Install SLSA verifier
+  uses: slsa-framework/slsa-verifier/actions/installer@v2.0.1
+
+- name: Install crane
+  uses: iarekylew00t/crane-installer@v1
 ```
+
+## Limitations
+
+⚠️ The standard
+[slsa-verifier](https://github.com/slsa-framework/slsa-verifier/tree/main/actions/installer)
+Action does not support macOS or Windows. You can install and setup the
+`slsa-verifier` binary in your `PATH` separately to support SLSA validation, but
+that is outside the scope of this Action.
+
+## Releases
+
+For maintainers, the following release process should be used when cutting new
+versions.
+
+1. ⏬ Ensure all changes are in the `main` branch and all necessary
+   [Workflows](https://github.com/IAreKyleW00t/crane-installer/actions) are
+   passing.
+
+   ```sh
+   git checkout main
+   git pull
+   ```
+
+2. 🔖 Create a new Tag, push it up, then create a
+   [new Release](https://github.com/IAreKyleW00t/crane-installer/releases/new)
+   for the version.
+
+   ```sh
+   git tag v1.2.3
+   git push -u origin v1.2.3
+   ```
+
+   Alternatively you can create the Tag on the GitHub Release page itself.
+
+   When the tag is pushed it will kick off the
+   [Shared Tags](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/shared-tags.yml)
+   Workflows to update the `v$MAJOR` and `v$MAJOR.MINOR` tags.
 
 ## Contributing
 
 Feel free to contribute and make things better by opening an
 [Issue](https://github.com/IAreKyleW00t/crane-installer/issues) or
-[Pull Request](https://github.com/IAreKyleW00t/crane-installer/pulls).
+[Pull Request](https://github.com/IAreKyleW00t/crane-installer/pulls).  
+Thank you for your contribution! ❤️
 
 ## License
 
