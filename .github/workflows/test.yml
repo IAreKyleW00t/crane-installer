@@ -20,13 +20,12 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         release: [v0.19.1] # >= v0.19.2 is broken and doesn't have signatures :\
-        slsa: [true, false]
     steps:
       - name: Checkout repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Install SLSA verifier
-        if: matrix.slsa == true && runner.os == 'Linux'
+        if: runner.os == 'Linux'
         uses: slsa-framework/slsa-verifier/actions/installer@3714a2a4684014deb874a0e737dffa0ee02dd647 # v2.6.0
 
       - name: Install crane
