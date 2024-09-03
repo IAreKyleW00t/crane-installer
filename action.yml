@@ -108,7 +108,7 @@ runs:
         curl -fSsL \
           -u ":$TOKEN" \
           -o go-containerregistry.tar.gz \
-          "https://github.com/google/go-containerregistry/releases/download/$VERSION/go-containerregistry_$OS_$ARCH.tar.gz"
+          "https://github.com/google/go-containerregistry/releases/download/$VERSION/go-containerregistry_${OS}_${ARCH}.tar.gz"
         tar -zxvf go-containerregistry.tar.gz -C "${{ inputs.install-dir }}" "crane$EXE"
 
     - id: verify
