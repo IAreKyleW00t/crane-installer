@@ -25,7 +25,7 @@ with macOS and Windows.
 
 ```yaml
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v1
+  uses: iarekylew00t/crane-installer@v2
 ```
 
 ## Usage
@@ -58,7 +58,7 @@ with macOS and Windows.
 
 ```yaml
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v1
+  uses: iarekylew00t/crane-installer@v2
   with:
     crane-release: v0.14.0
 ```
@@ -111,7 +111,7 @@ with macOS and Windows.
   uses: slsa-framework/slsa-verifier/actions/installer@v2.0.1
 
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v1
+  uses: iarekylew00t/crane-installer@v2
 ```
 
 ## Limitations
