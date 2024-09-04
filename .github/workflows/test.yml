@@ -27,8 +27,8 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Install SLSA verifier
-        if: matrix.slsa == true && runner.os == 'Linux'
-        uses: slsa-framework/slsa-verifier/actions/installer@3714a2a4684014deb874a0e737dffa0ee02dd647 # v2.6.0
+        if: matrix.slsa == true
+        uses: iarekylew00t/setup-slsa-verifier@cd4853b15257e69eef484481b074222362dc6c59 # v1.0.0
 
       - name: Install crane
         id: crane
