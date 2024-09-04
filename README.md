@@ -18,8 +18,7 @@ https://github.com/google/go-containerregistry/blob/main/cmd/crane/recipes.md.
 For available crane releases, see https://github.com/google/go-containerregistry/releases.
 
 This action supports Linux, macOS and Windows runners (results may vary with
-self-hosted runners). However, there are some [limitations](#limitations)
-with macOS and Windows.
+self-hosted runners).
 
 ## Quick Start
 
@@ -108,19 +107,11 @@ with macOS and Windows.
 
 ```yaml
 - name: Install SLSA verifier
-  uses: slsa-framework/slsa-verifier/actions/installer@v2.0.1
+  uses: iarekylew00t/setup-slsa-verifier@v1
 
 - name: Install crane
   uses: iarekylew00t/crane-installer@v2
 ```
-
-## Limitations
-
-⚠️ The standard
-[slsa-verifier](https://github.com/slsa-framework/slsa-verifier/tree/main/actions/installer)
-Action does not support macOS or Windows. You can install and setup the
-`slsa-verifier` binary in your `PATH` separately to support SLSA validation, but
-that is outside the scope of this Action.
 
 ## Releases
 
