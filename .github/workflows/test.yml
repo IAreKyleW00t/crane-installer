@@ -28,7 +28,7 @@ jobs:
 
       - name: Install SLSA verifier
         if: matrix.slsa == true
-        uses: iarekylew00t/setup-slsa-verifier@6475af25039c5c382ca3917886d913be9fdc6f74 # v1.1.1
+        uses: iarekylew00t/setup-slsa-verifier@28f998532c70cf49bbf539e0379c09dac665d313 # v1.2.0
 
       - name: Install crane
         id: crane
