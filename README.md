@@ -7,15 +7,17 @@
 [![Dependabot](https://img.shields.io/badge/Dependabot-0366d6?style=flat&logo=dependabot&logoColor=white)](.github/dependabot.yml)
 
 This GitHub Action enables you to interacting with remote images and registries
-using [`crane`](https://github.com/google/go-containerregistry/tree/main/cmd/crane).
+using
+[`crane`](https://github.com/google/go-containerregistry/tree/main/cmd/crane).
 This action will verify the integrity of the `crane` release during installation
-if you setup [SLSA 3 provenance](https://slsa.dev/) (see [Examples](#examples) below).
-This Action will also utilize [actions/cache](https://github.com/actions/cache)
-to cache the `crane` binary.
+if you setup [SLSA 3 provenance](https://slsa.dev/) (see [Examples](#examples)
+below). This Action will also utilize
+[actions/cache](https://github.com/actions/cache) to cache the `crane` binary.
 
 For a quick start guide on the usage of `crane`, please refer to
 https://github.com/google/go-containerregistry/blob/main/cmd/crane/recipes.md.
-For available crane releases, see https://github.com/google/go-containerregistry/releases.
+For available crane releases, see
+https://github.com/google/go-containerregistry/releases.
 
 This action supports Linux, macOS and Windows runners (results may vary with
 self-hosted runners).
@@ -46,10 +48,11 @@ self-hosted runners).
 | `verify`        | Boolean | Perform SLSA validation on `crane` binary [1] | `true`                |
 | `token`         | String  | token to use for GitHub authentication        | `${{ github.token }}` |
 
-> 1. `slsa-verifier` must be in your `PATH` for validation to work. It will be skipped
->    if it's not present; See
->    [Automatic validation with SLSA](#automatic-validation-with-slsa).
->    The `verify` input is if you want explicitly _skip_ the verification step when it _would_ run.
+> 1. `slsa-verifier` must be in your `PATH` for validation to work. It will be
+>    skipped if it's not present; See
+>    [Automatic validation with SLSA](#automatic-validation-with-slsa). The
+>    `verify` input is if you want explicitly _skip_ the verification step when
+>    it _would_ run.
 
 ## Examples
 
@@ -151,4 +154,5 @@ Thank you for your contribution! ❤️
 
 ## License
 
-See [LICENSE](https://github.com/IAreKyleW00t/crane-installer/blob/main/LICENSE).
+See
+[LICENSE](https://github.com/IAreKyleW00t/crane-installer/blob/main/LICENSE).

@@ -3,162 +3,33 @@ author: Kyle Colantonio
 description: GitHub Action for installing the crane CLI tool
 
 branding:
-  icon: anchor
-  color: blue
+  icon: package
+  color: red
 
 inputs:
   crane-release:
     description: crane release version to be installed
     required: false
     default: latest
-  install-dir:
-    description: Directory to install crane binary into
-    required: false
-    default: $HOME/.crane
-  cache:
-    description: Cache the crane binary
-    required: false
-    default: "true"
   verify:
-    description: Perform cosign validation on crane binary after download
+    description: Perform signature verification on crane
     required: false
-    default: "true"
+    default: 'true'
+  cache:
+    description: Whether to utilize cache with crane
+    required: false
+    default: 'true'
   token:
-    description: GitHub Token for API and GitHub Container Registry access
+    description: GitHub token for REST API access
     required: false
     default: ${{ github.token }}
 
 outputs:
   version:
-    description: The version of crane the was installed
-    value: ${{ steps.release.outputs.version }}
+    description: The version of crane that was installed
   cache-hit:
-    description: If the crane binary was loaded via cache
-    value: ${{ steps.cache.outputs.cache-hit || false }}
+    description: If crane was installed via cache
 
 runs:
-  using: composite
-  steps:
-    - id: sys
-      shell: bash
-      run: |
-        # Parse System OS and Arch
-        OS=${RUNNER_OS/macOS/Darwin}
-        case "$RUNNER_ARCH" in
-          X64)
-            ARCH=x86_64
-            ;;
-          ARM)
-            ARCH=armv6
-            ;;
-          ARM64)
-            ARCH=arm64
-            ;;
-          *)
-            echo "::error::Unsupported architecture: $RUNNER_ARCH"
-            exit 1
-            ;;
-        esac
-        echo "os=$OS" | tee -a "$GITHUB_OUTPUT"
-        echo "arch=$ARCH" | tee -a "$GITHUB_OUTPUT"
-
-    - id: release
-      shell: bash
-      env:
-        VERSION: ${{ inputs.crane-release }}
-        TOKEN: ${{ inputs.token }}
-      run: |
-        # Get latest release (if not pinned)
-        if [[ "$VERSION" == "latest" ]]; then
-          VERSION=$(curl -fSsL \
-            -u ":$TOKEN" \
-            "https://api.github.com/repos/google/go-containerregistry/releases/latest" \
-            | jq -r '.tag_name')
-        fi
-        echo "version=$VERSION" | tee -a "$GITHUB_OUTPUT"
-
-    - id: cache
-      if: inputs.cache == 'true'
-      uses: actions/cache@v4
-      with:
-        path: ${{ inputs.install-dir }}
-        key: crane-${{ runner.os }}-${{ runner.arch }}-${{ steps.release.outputs.version }}
-
-    - id: mkdir
-      shell: bash
-      if: steps.cache.outputs.cache-hit == false
-      env:
-        INSTALL_DIR: ${{ inputs.install-dir }}
-      run: |
-        # Create install directory
-        mkdir -p "$INSTALL_DIR"
-
-    - id: install
-      shell: bash
-      if: inputs.cache == 'false' || steps.cache.outputs.cache-hit == false
-      env:
-        TOKEN: ${{ inputs.token }}
-        INSTALL_DIR: ${{ inputs.install-dir }}
-        VERSION: ${{ steps.release.outputs.version }}
-        OS: ${{ steps.sys.outputs.os }}
-        ARCH: ${{ steps.sys.outputs.arch }}
-        EXE: ${{ runner.os == 'Windows' && '.exe' || '' }}
-      run: |
-        # Download and Install crane
-        curl -fSsL \
-          -u ":$TOKEN" \
-          -o go-containerregistry.tar.gz \
-          "https://github.com/google/go-containerregistry/releases/download/$VERSION/go-containerregistry_${OS}_${ARCH}.tar.gz"
-        tar -zxvf go-containerregistry.tar.gz -C "$INSTALL_DIR" "crane$EXE"
-
-    - id: verify
-      shell: bash
-      if: |
-        inputs.verify == 'true' &&
-        (inputs.cache == 'false' || steps.cache.outputs.cache-hit == false)
-      env:
-        VERSION: ${{ steps.release.outputs.version }}
-      run: |
-        # Validate crane binary (if slsa-verifier is installed)
-        if which slsa-verifier >/dev/null; then
-          curl -fSsL \
-            -u ":$TOKEN" \
-            -o multiple.intoto.jsonl \
-            "https://github.com/google/go-containerregistry/releases/download/$VERSION/multiple.intoto.jsonl"
-          
-          slsa-verifier verify-artifact \
-            go-containerregistry.tar.gz \
-            --provenance-path multiple.intoto.jsonl \
-            --source-uri github.com/google/go-containerregistry \
-            --source-tag "$VERSION"
-          rm -rf multiple.intoto.jsonl
-        else
-          echo "Binary verification was skipped because 'slsa-verifier' was not found in PATH"
-        fi
-
-    - id: clean
-      shell: bash
-      run: |
-        # Cleanup install files
-        rm -rf go-containerregistry.tar.gz
-
-    - id: path
-      shell: bash
-      if: contains(fromJson('["Linux", "macOS"]'), runner.os)
-      env:
-        INSTALL_DIR: ${{ inputs.install-dir }}
-      run: |
-        # Update Linux/macOS PATH
-        echo "$INSTALL_DIR" >> $GITHUB_PATH
-
-    - id: path-win
-      shell: pwsh
-      if: runner.os == 'Windows'
-      env:
-        INSTALL_DIR: ${{ inputs.install-dir }}
-      run: |
-        # Update Windows PATH
-        echo "$env:INSTALL_DIR" | Out-File `
-          -Encoding utf8 `
-          -Append `
-          -FilePath "$env:GITHUB_PATH"
+  using: node20
+  main: dist/index.js

@@ -2,46 +2,244 @@ name: Action Tests
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - action.yml
   pull_request:
-    branches: [main]
-    paths:
-      - action.yml
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 jobs:
-  test:
-    name: Test action
-    runs-on: ${{ matrix.os }}
+  test-slsa:
+    name: Test slsa
+    runs-on: ${{ matrix.os }}-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        release: [v0.19.1] # >= v0.19.2 is broken and doesn't have signatures :\
-        slsa: [true, false]
-        cache: [true, false]
+        os: [macos, ubuntu, windows]
+        verify: [true, false]
+    permissions:
+      contents: read
     steps:
       - name: Checkout repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - name: Install SLSA verifier
-        if: matrix.slsa == true
-        uses: iarekylew00t/setup-slsa-verifier@28f998532c70cf49bbf539e0379c09dac665d313 # v1.2.0
+      - name: Install SLSA Verifier
+        uses: iarekylew00t/slsa-verifier/actions/installer@refactor/action
+        with:
+          version: v2.6.0
 
-      - name: Install crane
+      - name: Setup crane
         id: crane
         uses: ./
         with:
-          crane-release: ${{ matrix.release }}
-          verify: ${{ matrix.slsa }}
+          verify: ${{ matrix.verify }}
+          # versions > 0.19.1 do not have valid attestations :\
+          crane-release: v0.19.1
+
+      - name: Test crane
+        shell: bash
+        run: |
+          if ! which crane ; then
+            echo "::error::crane not found in PATH"
+            exit 1
+          fi
+
+  test-version:
+    name: Test version
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos, ubuntu, windows]
+        version: [latest, v0.19.1, 4fdaa32ee934cd178b6eb41b3096419a52ef426a]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Setup crane
+        id: crane
+        uses: ./
+        with:
+          crane-release: ${{ matrix.version }}
+
+      - name: Test crane
+        shell: bash
+        env:
+          MATRIX_VERSION: ${{ matrix.version }}
+          VERSION: ${{ steps.crane.outputs.version }}
+        run: |
+          if ! which crane ; then
+            echo "::error::crane not found in PATH"
+            exit 1
+          fi
+
+          echo "EXPECTED=$MATRIX_VERSION"
+          echo "VERSION=$VERSION"
+          [[ "$MATRIX_VERSION" == v* ]] && VERSION=$MATRIX_VERSION
+          if ! crane version | grep "${VERSION/v/}" ; then
+            echo "::error::crane $VERSION does not appear to be installed"
+            exit 1
+          fi
+
+  test-bad-version:
+    name: Test bad version
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - v0.0.0
+          - foobar
+          - 7e1e47d
+          - ffffffffffffffffffffffffffffffffffffffff
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Setup crane
+        id: crane
+        uses: ./
+        continue-on-error: true
+        with:
+          crane-release: ${{ matrix.version }}
+
+      - name: Test slsa-verifier
+        shell: bash
+        env:
+          FAILURE: ${{ steps.crane.outcome  == 'failure' }}
+        run: |
+          if which crane ; then
+            echo "::error::crane was found in PATH"
+            exit 1
+          fi
+
+          if [ "$FAILURE" != "true" ]; then
+            echo "::error::Expected Action to fail but didn't"
+            exit 1
+          fi
+
+  test-invalid-version:
+    name: Test invalid version
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos, windows]
+        version:
+          - v0.1.4
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Setup crane
+        id: crane
+        uses: ./
+        continue-on-error: true
+        with:
+          crane-release: ${{ matrix.version }}
+
+      - name: Test slsa-verifier
+        shell: bash
+        env:
+          FAILURE: ${{ steps.crane.outcome  == 'failure' }}
+        run: |
+          if which crane ; then
+            echo "::error::crane was found in PATH"
+            exit 1
+          fi
+
+          if [ "$FAILURE" != "true" ]; then
+            echo "::error::Expected Action to fail but didn't"
+            exit 1
+          fi
+
+  test-unsigned-version:
+    name: Test unsigned version
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu]
+        version:
+          - v0.19.2
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Install SLSA Verifier
+        uses: iarekylew00t/slsa-verifier/actions/installer@refactor/action
+        with:
+          version: v2.6.0
+
+      - name: Setup crane
+        id: crane
+        uses: ./
+        continue-on-error: true
+        with:
+          crane-release: ${{ matrix.version }}
+
+      - name: Test slsa-verifier
+        shell: bash
+        env:
+          FAILURE: ${{ steps.crane.outcome  == 'failure' }}
+        run: |
+          if which crane ; then
+            echo "::error::crane was found in PATH"
+            exit 1
+          fi
+
+          if [ "$FAILURE" != "true" ]; then
+            echo "::error::Expected Action to fail but didn't"
+            exit 1
+          fi
+
+  test-cache:
+    name: Test cache
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos, ubuntu, windows]
+        cache: [true, false]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Setup crane (cache)
+        if: matrix.cache == true
+        uses: ./
+
+      - name: Setup crane
+        id: crane
+        uses: ./
+        with:
           cache: ${{ matrix.cache }}
 
       - name: Test crane
         shell: bash
         env:
-          VERSION: ${{ steps.crane.outputs.version }}
+          CACHE_HIT: ${{ steps.crane.outputs.cache-hit }}
+          MATRIX_CACHE: ${{ matrix.cache }}
         run: |
-          crane version | grep "${VERSION/v/}"
-          crane manifest busybox:latest
+          if ! which crane ; then
+            echo "::error::crane not found in PATH"
+            exit 1
+          fi
+
+          echo "EXPECTED=$MATRIX_CACHE"
+          echo "CACHE_HIT=$CACHE_HIT"
+          if [ "$MATRIX_CACHE" != "$CACHE_HIT" ]; then
+            echo "::error::Cache hit is not what was expected"
+            exit 1
+          fi
