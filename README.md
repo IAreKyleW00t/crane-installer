@@ -1,58 +1,59 @@
 # 📦 crane-installer
 
+[![CI](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/ci.yml/badge.svg)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/ci.yml)
+[![Tests](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/test.yml/badge.svg)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/test.yml)
+[![Check dist/](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/check-dist.yml/badge.svg)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/check-dist.yml)
+[![CodeQL](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/codeql.yml/badge.svg)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/codeql.yml)  
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-crane--installer-blue?style=flat&logo=github)](https://github.com/marketplace/actions/crane-installer)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/IAreKyleW00t/crane-installer?style=flat&label=Latest%20Version&color=blue)](https://github.com/IAreKyleW00t/crane-installer/tags)
-[![Action Tests](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/test.yml/badge.svg)](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/test.yml)
 [![License](https://img.shields.io/github/license/IAreKyleW00t/crane-installer?label=License)](https://github.com/IAreKyleW00t/crane-installer/blob/main/LICENSE)
 [![Dependabot](https://img.shields.io/badge/Dependabot-0366d6?style=flat&logo=dependabot&logoColor=white)](.github/dependabot.yml)
 
-This GitHub Action enables you to interacting with remote images and registries
-using
-[`crane`](https://github.com/google/go-containerregistry/tree/main/cmd/crane).
-This action will verify the integrity of the `crane` release during installation
-if you setup [SLSA 3 provenance](https://slsa.dev/) (see [Examples](#examples)
-below). This Action will also utilize
-[actions/cache](https://github.com/actions/cache) to cache the `crane` binary.
+This Action downloads
+[`crane`](https://github.com/google/go-containerregistry/tree/main/cmd/crane)
+and adds it to your `PATH`, with optional signature verification if you use the
+[SLSA Verifier](https://github.com/slsa-framework/slsa-verifier).
 
-For a quick start guide on the usage of `crane`, please refer to
-https://github.com/google/go-containerregistry/blob/main/cmd/crane/recipes.md.
-For available crane releases, see
-https://github.com/google/go-containerregistry/releases.
+For a quick start guide on the usage of `crane`, refer to
+[its documentation](https://github.com/google/go-containerregistry/blob/main/cmd/crane/recipes.md).
 
-This action supports Linux, macOS and Windows runners (results may vary with
-self-hosted runners).
+For available `crane` releases, refer to
+[its releases](https://github.com/google/go-containerregistry/releases).
+
+> This action supports Linux, macOS and Windows runners (results may vary with
+> self-hosted runners).
 
 ## Quick Start
 
 ```yaml
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v2
+  uses: iarekylew00t/crane-installer@v3
 ```
 
 ## Usage
 
-> [!IMPORTANT]
+> [!NOTE]
 >
-> You need to authenticate into registries using either the
-> [docker/login-action](https://github.com/docker/login-action) Action or by
-> manually configuring credentials in within `crane` itself. See the
-> [Examples](#examples) section for details on how to do this.
+> `slsa-verifier` must be in your `PATH` for signature verification or it will
+> be skipped - See
+> [Automatic verification with SLSA Verifier](#automatic-verification-with-slsa-verifier).
+> If `crane` is loaded from cache it will **not** be re-verified.
 
 ## Inputs
 
-| Name            | Type    | Description                                   | Default               |
-| --------------- | ------- | --------------------------------------------- | --------------------- |
-| `crane-release` | String  | `crane` release version to be installed       | `latest`              |
-| `install-dir`   | String  | directory to install `crane` binary           | `$HOME/.crane`        |
-| `cache`         | Boolean | Cache the `crane` binary                      | `true`                |
-| `verify`        | Boolean | Perform SLSA validation on `crane` binary [1] | `true`                |
-| `token`         | String  | token to use for GitHub authentication        | `${{ github.token }}` |
+| Name            | Type    | Description                               | Default               |
+| --------------- | ------- | ----------------------------------------- | --------------------- |
+| `crane-release` | String  | `crane` release version to be installed   | `latest`              |
+| `verify`        | Boolean | Perform signature verification on `crane` | `true`                |
+| `cache`         | Boolean | Whether to utilize cache with `crane`     | `true`                |
+| `token`         | String  | GitHub token for REST API access          | `${{ github.token }}` |
 
-> 1. `slsa-verifier` must be in your `PATH` for validation to work. It will be
->    skipped if it's not present; See
->    [Automatic validation with SLSA](#automatic-validation-with-slsa). The
->    `verify` input is if you want explicitly _skip_ the verification step when
->    it _would_ run.
+### Outputs
+
+| Name        | Type    | Description                              |
+| ----------- | ------- | ---------------------------------------- |
+| `version`   | String  | The version of `crane` the was installed |
+| `cache-hit` | Boolean | If `crane` was installed via cache       |
 
 ## Examples
 
@@ -60,16 +61,16 @@ self-hosted runners).
 
 ```yaml
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v2
+  uses: iarekylew00t/crane-installer@v3
   with:
-    crane-release: v0.14.0
+    crane-release: v0.20.2
 ```
 
-### Authenticate using Docker credentials
+### Authenticate using Action
 
 ```yaml
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v2
+  uses: iarekylew00t/crane-installer@v3
 
 - name: Login to DockerHub
   uses: docker/login-action@v3
@@ -85,11 +86,11 @@ self-hosted runners).
     password: ${{ github.token }}
 ```
 
-### Authenticate using crane
+### Authenticate using `crane`
 
 ```yaml
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v2
+  uses: iarekylew00t/crane-installer@v3
 
 - name: Login to DockerHub
   run: |
@@ -106,15 +107,47 @@ self-hosted runners).
       --pass-stdin
 ```
 
-### Automatic validation with SLSA
+### Automatic verification with SLSA Verifier
 
 ```yaml
 - name: Install SLSA verifier
-  uses: iarekylew00t/setup-slsa-verifier@v1
+  uses: slsa-framework/slsa-verifier/actions/installer@v2.6.0
 
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v2
+  uses: iarekylew00t/crane-installer@v3
 ```
+
+## Development
+
+> [!CAUTION]
+>
+> Since this is a TypeScript action you **must** transpile it into native
+> JavaScript. This is done for you automatically as part of the `npm run all`
+> command and will be validated via the
+> [`check-dist.yml`](https://github.com/IAreKyleW00t/crane-installer/actions/workflows/check-dist.yml)
+> Workflow in any PR.
+
+1. ⚙️ Install the version of [Node.js](https://nodejs.org/en) as defined in the
+   [`.node-version`](.node-version).  
+   You can use [asdf](https://github.com/asdf-vm/asdf) to help manage your
+   project runtimes.
+
+   ```sh
+   asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+   asdf install
+   ```
+
+2. 🛠️ Install dependencies
+
+   ```sh
+   npm install
+   ```
+
+3. 🏗️ Format, lint, test, and package your code changes.
+
+   ```sh
+   npm run all
+   ```
 
 ## Releases
 
@@ -130,7 +163,15 @@ versions.
    git pull
    ```
 
-2. 🔖 Create a new Tag, push it up, then create a
+2. ✅ Ensure the [`package.json`](package.json#L4) and
+   [`package-lock.json`](package-lock.json#L3) files are updated to with the new
+   version being cut.
+
+   ```sh
+   npm update
+   ```
+
+3. 🔖 Create a new Tag, push it up, then create a
    [new Release](https://github.com/IAreKyleW00t/crane-installer/releases/new)
    for the version.
 
