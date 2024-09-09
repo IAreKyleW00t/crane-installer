@@ -34,6 +34,7 @@ jobs:
         uses: ./
         with:
           verify: ${{ matrix.verify }}
+          cache: false
           # versions > 0.19.1 do not have valid attestations :\
           crane-release: v0.19.1
 
