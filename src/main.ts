@@ -1,12 +1,13 @@
 import * as core from '@actions/core'
-import * as exec from '@actions/exec'
 import * as github from '@actions/github'
 import * as tc from '@actions/tool-cache'
+import * as exec from '@actions/exec'
+import * as io from '@actions/io'
+
 import * as path from 'path'
 import * as fs from 'fs'
 import * as os from 'os'
 
-import { lookpath } from 'lookpath'
 import * as utils from './utils'
 
 export const CRANE_REPO = 'https://github.com/google/go-containerregistry'
@@ -71,7 +72,7 @@ export async function run(): Promise<void> {
       )
 
       // Verify crane if slsa-verifier is in the PATH (unless told to skip)
-      const slsa = await lookpath('slsa-verifier')
+      const slsa = await io.which('slsa-verifier')
       if (core.getBooleanInput('verify') && slsa) {
         // Download release attestation into tmpDir
         core.info('🔏 Downloading attestation')
@@ -129,6 +130,6 @@ export async function run(): Promise<void> {
   // Cleanup tmpDir if it was created at any point
   if (tmpDir) {
     core.debug(`Deleting ${tmpDir}`)
-    fs.rmSync(tmpDir, { recursive: true, force: true })
+    await io.rmRF(tmpDir)
   }
 }
