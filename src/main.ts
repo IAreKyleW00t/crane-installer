@@ -35,7 +35,7 @@ export async function run(): Promise<void> {
         version = await utils.getVersionRelease(version, octokit)
       } else if (version === 'latest') {
         version = await utils.getLatestVersion(octokit)
-      } else throw Error
+      } else throw Error(`Invalid crane version: ${version}`)
     } catch (error) {
       // If we get an error message, then something when wrong with a valid
       // version. If we get a blank error, that means we got an invalid version.
