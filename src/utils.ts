@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
 import * as tc from '@actions/tool-cache'
 
-import { GitHub } from '@actions/github/lib/utils'
+import { GitHub } from '@actions/github/lib/utils.js'
 
-import { CRANE_REPO } from './main'
+import { CRANE_REPO } from './main.js'
 
 export function getArch(arch: string): string {
   switch (arch) {

@@ -15,7 +15,7 @@ describe('utils', () => {
 
     test.each(['ia32', 'loong64', 'mips', 'mipsel', 'ppc', 'riscv64', 's390'])(
       'errors on %s',
-      arch => {
+      (arch) => {
         const result = (): string => utils.getArch(arch)
         expect(result).toThrow(`Unsupported architecture ${arch}`)
       }
@@ -34,7 +34,7 @@ describe('utils', () => {
 
     test.each(['aix', 'freebsd', 'openbsd', 'sunos'])(
       'errors on %s',
-      platform => {
+      (platform) => {
         const result = (): string => utils.getOS(platform)
         expect(result).toThrow(`Unsupported OS ${platform}`)
       }
@@ -42,7 +42,7 @@ describe('utils', () => {
   })
 
   describe('validVersion', () => {
-    test.each(['v0.0.0', 'v1.0.0'])('accepts %s', version => {
+    test.each(['v0.0.0', 'v1.0.0'])('accepts %s', (version) => {
       const result = utils.validVersion(version)
       expect(result).toBeTruthy()
     })
@@ -52,7 +52,7 @@ describe('utils', () => {
       'foobar',
       '1.0.0',
       '57755b13f9c806ec4281bdb148fc6c6ed2d08726'
-    ])('rejects %s', version => {
+    ])('rejects %s', (version) => {
       const result = utils.validVersion(version)
       expect(result).toBeFalsy()
     })
@@ -65,9 +65,12 @@ describe('utils', () => {
       expect(result).toBeTruthy()
     })
 
-    test.each(['foobar', '1.0.0', '1', '1.0', '57755b1'])('rejects %s', sha => {
-      const result = utils.isSha(sha)
-      expect(result).toBeFalsy()
-    })
+    test.each(['foobar', '1.0.0', '1', '1.0', '57755b1'])(
+      'rejects %s',
+      (sha) => {
+        const result = utils.isSha(sha)
+        expect(result).toBeFalsy()
+      }
+    )
   })
 })

@@ -8,7 +8,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as os from 'os'
 
-import * as utils from './utils'
+import * as utils from './utils.js'
 
 export const CRANE_REPO = 'https://github.com/google/go-containerregistry'
 
