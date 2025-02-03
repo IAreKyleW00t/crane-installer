@@ -1,7 +1,7 @@
 {
   "name": "crane-installer",
   "description": "GitHub Action for installing the crane CLI tool",
-  "version": "3.0.7",
+  "version": "3.1.0",
   "author": "Kyle Colantonio",
   "private": true,
   "homepage": "https://github.com/IAreKyleW00t/crane-installer",
