@@ -154,7 +154,7 @@ For available `crane` releases, refer to
 For maintainers, the following release process should be used when cutting new
 versions.
 
-1. ⏬ Ensure all changes are in the `main` branch and all necessary
+1. ⏬ Pull down the latest changes and ensure all
    [Workflows](https://github.com/IAreKyleW00t/crane-installer/actions) are
    passing.
 
@@ -163,12 +163,10 @@ versions.
    git pull
    ```
 
-2. ✅ Ensure the [`package.json`](package.json#L4) and
-   [`package-lock.json`](package-lock.json#L3) files are updated to with the new
-   version being cut.
+2. ✅ Bump the package version.
 
    ```sh
-   npm update
+   npm version <major|minor|patch> -m "chore: Bumping version to vX.Y.Z"
    ```
 
 3. 🔖 Create a new Tag, push it up, then create a
@@ -176,8 +174,8 @@ versions.
    for the version.
 
    ```sh
-   git tag v1.2.3
-   git push -u origin v1.2.3
+   git tag vX.Y.Z
+   git push -u origin vX.Y.Z
    ```
 
    Alternatively you can create the Tag on the GitHub Release page itself.
