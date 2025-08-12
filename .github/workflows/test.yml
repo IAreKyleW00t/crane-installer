@@ -11,12 +11,13 @@ on:
 
 jobs:
   test-slsa:
-    name: Test slsa
+    name: Test SLSA
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [macos, ubuntu, windows]
+        # slsa-framework/slsa-verifier/actions/installer only supports Linux runners
+        os: [ubuntu]
         verify: [true, false]
     permissions:
       contents: read
@@ -25,9 +26,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Install SLSA Verifier
-        uses: iarekylew00t/slsa-verifier/actions/installer@refactor/action
-        with:
-          version: v2.6.0
+        uses: slsa-framework/slsa-verifier/actions/installer@ea584f4502babc6f60d9bc799dbbb13c1caa9ee6 # v2.7.1
 
       - name: Setup crane
         id: crane
