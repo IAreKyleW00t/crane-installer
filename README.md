@@ -27,7 +27,7 @@ For available `crane` releases, refer to
 
 ```yaml
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v3
+  uses: iarekylew00t/crane-installer@v4
 ```
 
 ## Usage
@@ -61,7 +61,7 @@ For available `crane` releases, refer to
 
 ```yaml
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v3
+  uses: iarekylew00t/crane-installer@v4
   with:
     crane-release: v0.20.2
 ```
@@ -70,7 +70,7 @@ For available `crane` releases, refer to
 
 ```yaml
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v3
+  uses: iarekylew00t/crane-installer@v4
 
 - name: Login to DockerHub
   uses: docker/login-action@v3
@@ -90,7 +90,7 @@ For available `crane` releases, refer to
 
 ```yaml
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v3
+  uses: iarekylew00t/crane-installer@v4
 
 - name: Login to DockerHub
   run: |
@@ -114,7 +114,7 @@ For available `crane` releases, refer to
   uses: slsa-framework/slsa-verifier/actions/installer@v2.6.0
 
 - name: Install crane
-  uses: iarekylew00t/crane-installer@v3
+  uses: iarekylew00t/crane-installer@v4
 ```
 
 ## Development
