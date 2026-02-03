@@ -1,9 +1,6 @@
 import * as core from '@actions/core'
-import * as tc from '@actions/tool-cache'
 
-import { GitHub } from '@actions/github/lib/utils.js'
-
-import { CRANE_REPO } from './main.js'
+import { GitHub } from '@actions/github/lib/utils'
 
 export function getArch(arch: string): string {
   switch (arch) {
@@ -110,20 +107,4 @@ export async function getVersionReleaseBySha(
     }
   }
   throw Error(`Could not find tag or release associated with commit ${sha}`)
-}
-
-export async function downloadReleaseArtifact(
-  version: string,
-  artifact: string,
-  output: string
-): Promise<string> {
-  try {
-    return await tc.downloadTool(
-      `${CRANE_REPO}/releases/download/${version}/${artifact}`,
-      output
-    )
-  } catch (error) {
-    core.debug(error instanceof Error ? error.message : (error as string))
-    throw Error(`Failed to download artifact ${artifact} ${version}`)
-  }
 }

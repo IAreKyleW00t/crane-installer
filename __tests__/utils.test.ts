@@ -1,4 +1,9 @@
-import * as utils from '../src/utils.js'
+import { jest } from '@jest/globals'
+import * as core from '../__fixtures__/core.js'
+
+jest.unstable_mockModule('@actions/core', () => core)
+
+const utils = await import('../src/utils.js')
 
 describe('utils', () => {
   describe('getArch', () => {

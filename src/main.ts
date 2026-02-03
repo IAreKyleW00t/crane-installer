@@ -65,9 +65,8 @@ export async function run(): Promise<void> {
     if (!mainCachePath || !cache) {
       // Download release Tar into tmpDir
       core.info('⏬ Downloading crane release')
-      const mainTar = await utils.downloadReleaseArtifact(
-        version,
-        ARTIFACT_NAME,
+      const mainTar = await tc.downloadTool(
+        `${CRANE_REPO}/releases/download/${version}/${ARTIFACT_NAME}`,
         path.join(tmpDir, ARTIFACT_NAME)
       )
 
@@ -76,9 +75,8 @@ export async function run(): Promise<void> {
       if (core.getBooleanInput('verify') && slsa) {
         // Download release attestation into tmpDir
         core.info('🔏 Downloading attestation')
-        const attestation = await utils.downloadReleaseArtifact(
-          version,
-          'multiple.intoto.jsonl',
+        const attestation = await tc.downloadTool(
+          `${CRANE_REPO}/releases/download/${version}/multiple.intoto.jsonl`,
           path.join(tmpDir, 'multiple.intoto.jsonl')
         )
 
