@@ -60,7 +60,7 @@ export async function getLatestVersion(
     ).data.tag_name
   } catch (error) {
     core.debug(error instanceof Error ? error.message : (error as string))
-    throw Error('Could not find latest release')
+    throw Error('Could not find latest release', { cause: error })
   }
 }
 
@@ -78,7 +78,7 @@ export async function getVersionRelease(
     ).data.tag_name
   } catch (error) {
     core.debug(error instanceof Error ? error.message : (error as string))
-    throw Error(`Could not find release ${version}`)
+    throw Error(`Could not find release ${version}`, { cause: error })
   }
 }
 

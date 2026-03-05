@@ -42,11 +42,13 @@ export async function run(): Promise<void> {
       const message = error instanceof Error ? error.message : ''
       if (message) {
         throw Error(
-          `${message} - For a list of valid versions, see ${CRANE_REPO}/releases`
+          `${message} - For a list of valid versions, see ${CRANE_REPO}/releases`,
+          { cause: error }
         )
       } else {
         throw Error(
-          `Invalid version ${version} - For a list of valid versions, see ${CRANE_REPO}/releases`
+          `Invalid version ${version} - For a list of valid versions, see ${CRANE_REPO}/releases`,
+          { cause: error }
         )
       }
     }
@@ -97,7 +99,7 @@ export async function run(): Promise<void> {
           ])
         } catch (error) {
           core.debug(error instanceof Error ? error.message : (error as string))
-          throw Error('Signature verification failed')
+          throw Error('Signature verification failed', { cause: error })
         }
         core.info('✅ Signature verified')
       } else core.info('⏭️ Skipped signature verification')
